@@ -1,0 +1,25 @@
+{
+  "name": "webpack-path-override-plugin",
+  "version": "1.0.0",
+  "description": "provide a webpack plugin to override import or require path",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hongyuanlei/webpack-path-override-plugin.git"
+  },
+  "keywords": [
+    "webpack",
+    "path",
+    "override",
+    "plugin"
+  ],
+  "author": "Yuanlei Hong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hongyuanlei/webpack-path-override-plugin/issues"
+  },
+  "homepage": "https://github.com/hongyuanlei/webpack-path-override-plugin#readme"
+}
