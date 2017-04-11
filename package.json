@@ -1,6 +1,6 @@
 {
   "name": "webpack-path-override-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "provide a webpack plugin to override import or require path",
   "main": "index.js",
   "scripts": {
