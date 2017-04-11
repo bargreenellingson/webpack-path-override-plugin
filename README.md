@@ -10,14 +10,14 @@ Suppose you want override import/require path, such as:
 
 to:
 
-1. `import config from '../../config.squarefoot.json'`
-2. `const config = require('../../config.squarefoot.json')`
+1. `import config from '../../config.other_market.json'`
+2. `const config = require('../../config.other_market.json')`
 
 You can add plugin in to webpack config:
 
 ```
  plugins: [
-    new WebpackPathOverridePlugin(/config\.market\.json$/, 'config\.squarefoot\.json'),
+    new WebpackPathOverridePlugin(/config\.market\.json$/, 'config\.other_market\.json'),
  ],
 ```
 
