@@ -1,10 +1,9 @@
-"use strict";
+'use strict';
 
 import fs from 'fs';
 import path from 'path';
 
 module.exports =  class WebpackPathOverridePlugin {
-
   constructor(pathRegExp, pathReplacement) {
     this.pathRegExp = pathRegExp;
     this.pathReplacement = pathReplacement;
@@ -14,25 +13,28 @@ module.exports =  class WebpackPathOverridePlugin {
     const pathRegExp = this.pathRegExp;
     const pathReplacement = this.pathReplacement;
 
-    resolver.plugin("normal-module-factory", (nmf) => {
-      nmf.plugin("before-resolve", (result, callback) => {
+    resolver.plugin('normal-module-factory', (nmf) => {
+      nmf.plugin('before-resolve', (result, callback) => {
 
         if (!result) return callback();
         // test the request for a path match
         if (pathRegExp.test(result.request)) {
-          const {request, context} = result;
-          const filePath = request.replace(pathRegExp, pathReplacement);
-          const fullPath = path.resolve(context, filePath);
+          const contextPath = result.context;
+          const requestPath = result.request;
+
+          const filePath = requestPath.replace(pathRegExp, pathReplacement);
+          const fullPath = path.resolve([contextPath, filePath]);
 
           fs.stat(fullPath, (err) => {
             if (err) {
               return callback(err, null);
             }
 
-            return callback(null, {...result, request: filePath});
+            result.request = filePath;
+            return callback(null, result);
           });
         } else {
-          return callback(null, {...result});
+          return callback(null, result);
         }
       });
     });
