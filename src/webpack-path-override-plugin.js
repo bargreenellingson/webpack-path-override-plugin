@@ -23,7 +23,7 @@ module.exports =  class WebpackPathOverridePlugin {
           const requestPath = result.request;
 
           const filePath = requestPath.replace(pathRegExp, pathReplacement);
-          const fullPath = path.resolve([contextPath, filePath]);
+          const fullPath = path.resolve(contextPath, filePath);
 
           fs.stat(fullPath, (err) => {
             if (err) {
