@@ -1,8 +1,5 @@
 'use strict';
 
-import fs from 'fs';
-import path from 'path';
-
 module.exports =  class WebpackPathOverridePlugin {
   constructor(pathRegExp, pathReplacement) {
     this.pathRegExp = pathRegExp;
@@ -10,33 +7,38 @@ module.exports =  class WebpackPathOverridePlugin {
   }
 
   apply(resolver) {
-    const pathRegExp = this.pathRegExp;
-    const pathReplacement = this.pathReplacement;
-
     resolver.plugin('normal-module-factory', (nmf) => {
       nmf.plugin('before-resolve', (result, callback) => {
-
         if (!result) return callback();
+
         // test the request for a path match
-        if (pathRegExp.test(result.request)) {
-          const contextPath = result.context;
-          const requestPath = result.request;
-
-          const filePath = requestPath.replace(pathRegExp, pathReplacement);
-          const fullPath = path.resolve(contextPath, filePath);
-
-          fs.stat(fullPath, (err) => {
-            if (err) {
-              return callback(err, null);
-            }
-
-            result.request = filePath;
-            return callback(null, result);
-          });
+        if (this.pathRegExp.test(result.request)) {
+          const newResult = this.overrideRequestPath(result);
+          return callback(null, newResult);
         } else {
           return callback(null, result);
         }
       });
     });
+  }
+
+  overrideRequestPath(result) {
+    const newResult = {...result};
+    const pathRegExp = this.pathRegExp;
+    const pathReplacement = this.pathReplacement;
+
+    const {request, dependencies} = newResult;
+    newResult.request = request.replace(pathRegExp, pathReplacement);
+
+    if (dependencies) {
+      dependencies.forEach((dependency) => {
+        const dependencyRequest = dependency.request;
+        if (dependencyRequest) {
+          dependency.request = dependencyRequest.replace(pathRegExp, pathReplacement);
+        }
+      })
+    }
+
+    return newResult;
   }
 };
