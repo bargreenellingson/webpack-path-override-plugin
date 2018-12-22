@@ -4,7 +4,7 @@
   "description": "provide a webpack plugin to override import or require path",
   "main": "index.js",
   "scripts": {
-    "build": "npm run eslint && npm run test && babel src/webpack-path-override-plugin.js -o index.js",
+    "build": "babel src/webpack-path-override-plugin.js -o index.js",
     "prepublish": "npm run build",
     "eslint": "eslint src",
     "test": "mocha --compilers js:babel-core/register test/**/*-spec.js"
@@ -38,5 +38,8 @@
     "chai": "^3.5.0",
     "eslint": "^3.12.2",
     "mocha": "^3.2.0"
+  },
+  "dependencies": {
+    "path-is-inside": "^1.0.2"
   }
 }

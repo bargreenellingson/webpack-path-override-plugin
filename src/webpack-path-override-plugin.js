@@ -1,9 +1,15 @@
 'use strict';
 
+var pathIsInside = require("path-is-inside");
+var fs = require('fs');
+
 module.exports =  class WebpackPathOverridePlugin {
-  constructor(pathRegExp, pathReplacement) {
+  constructor(pathRegExp, pathReplacement, context, ignoreFile, pathPivot) {
     this.pathRegExp = pathRegExp;
+    this.context = context;
+    this.ignoreFile = ignoreFile;
     this.pathReplacement = pathReplacement;
+    this.pathPivot = pathPivot;
   }
 
   apply(resolver) {
@@ -12,7 +18,9 @@ module.exports =  class WebpackPathOverridePlugin {
         if (!result) return callback();
 
         // test the request for a path match
-        if (this.pathRegExp.test(result.request)) {
+        if (this.pathRegExp.test(result.request)
+          && pathIsInside(result.context, this.context)
+          && !(this.ignoreFile.test(result.request))) {
           const newResult = this.overrideRequestPath(result);
           return callback(null, newResult);
         } else {
@@ -28,7 +36,11 @@ module.exports =  class WebpackPathOverridePlugin {
     const pathReplacement = this.pathReplacement;
 
     const {request, dependencies} = newResult;
-    newResult.request = request.replace(pathRegExp, pathReplacement);
+    let subPath = '';
+    if (this.pathPivot) {
+      subPath = newResult.context.split(this.pathPivot)[1] + '/';
+    }
+    newResult.request = request.replace(pathRegExp, pathReplacement + subPath);
 
     if (dependencies) {
       dependencies.forEach((dependency) => {
@@ -38,7 +50,13 @@ module.exports =  class WebpackPathOverridePlugin {
         }
       })
     }
+    if (fs.existsSync(newResult.request)) {
+      return newResult;
+    } else {
+      console.warn(`\n\nnot found ${newResult.request}\n`);
+      console.warn(`using:    ${result.request}\n`);
+      return result;
+    }
 
-    return newResult;
   }
 };
