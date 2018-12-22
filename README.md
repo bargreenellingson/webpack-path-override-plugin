@@ -24,3 +24,7 @@ You can add plugin in to webpack config:
 The first param is the path(it can be a regex) that you want to be override.
 
 The second param is the path that be used to override the first param.
+
+#### TODO:
+
+- [] document pivot
