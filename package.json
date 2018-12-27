@@ -9,6 +9,7 @@
     "eslint": "eslint src",
     "test": "mocha --compilers js:babel-core/register test/**/*-spec.js"
   },
+  "install": "npm i && npm run build",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hongyuanlei/webpack-path-override-plugin.git"
