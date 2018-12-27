@@ -7,9 +7,9 @@
     "build": "babel src/webpack-path-override-plugin.js -o index.js",
     "prepublish": "npm run build",
     "eslint": "eslint src",
+    "prepare": "npm run build",
     "test": "mocha --compilers js:babel-core/register test/**/*-spec.js"
   },
-  "install": "npm i && npm run build",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hongyuanlei/webpack-path-override-plugin.git"
@@ -38,9 +38,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "chai": "^3.5.0",
     "eslint": "^3.12.2",
-    "mocha": "^3.2.0"
-  },
-  "dependencies": {
+    "mocha": "^3.2.0",
     "path-is-inside": "^1.0.2"
   }
 }
