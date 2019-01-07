@@ -12,15 +12,16 @@ module.exports =  class WebpackPathOverridePlugin {
   }
 
   apply(resolver) {
+
     resolver.plugin('normal-module-factory', (nmf) => {
       nmf.plugin('before-resolve', (result, callback) => {
         if (!result) return callback();
 
+        let requestFullPath = path.resolve(result.context, result.request);
+
         // test the request for a path match
-        if (pathIsInside(result.context, this.mainDir)) {
-
+        if (pathIsInside(requestFullPath, this.mainDir)) {
           let pathFromPivot = this.getRelativeFromRootDir(result);
-
           if (this.overrides.includes(pathFromPivot)) {
             result.request = path.resolve(this.overrideDir + '/..', pathFromPivot);
           }
@@ -35,8 +36,12 @@ module.exports =  class WebpackPathOverridePlugin {
 
   getRelativeFromRootDir(result) {
     let subPath = '';
-    subPath = path.relative(this.mainDir + '/..', result.context);
-    return path.join(subPath, result.request);
+    if (result.request.split(path.sep)[0] === 'src') {
+      return result.request;
+    } else {
+      subPath = path.relative(this.mainDir, result.context);
+      return path.join(subPath, result.request);
+    }
   }
 
   overrides = [];
@@ -57,7 +62,11 @@ module.exports =  class WebpackPathOverridePlugin {
           if (f.isDirectory()) {
             this.walk(fullPath);
           } else {
-            this.overrides.push(path.relative(this.overrideDir + '/..',fullPath));
+            let relativePath = path.relative(this.overrideDir + '/..',fullPath)
+            if (path.extname(relativePath) === '.js') {
+              relativePath = path.dirname(relativePath) + '/' + path.basename(relativePath, '.js')
+            }
+            this.overrides.push(relativePath);
           }
         });
       });
