@@ -2,14 +2,13 @@
 
 var pathIsInside = require("path-is-inside");
 var fs = require('fs');
+var path = require('path');
 
 module.exports =  class WebpackPathOverridePlugin {
-  constructor(pathRegExp, pathReplacement, context, ignoreFile, pathPivot) {
-    this.pathRegExp = pathRegExp;
-    this.context = context;
-    this.ignoreFile = ignoreFile;
-    this.pathReplacement = pathReplacement;
-    this.pathPivot = pathPivot;
+  constructor(mainDir, overrideDir){
+    this.mainDir = mainDir;
+    this.overrideDir = overrideDir;
+    this.walk(this.overrideDir);
   }
 
   apply(resolver) {
@@ -18,11 +17,15 @@ module.exports =  class WebpackPathOverridePlugin {
         if (!result) return callback();
 
         // test the request for a path match
-        if (this.pathRegExp.test(result.request)
-          && pathIsInside(result.context, this.context)
-          && !(this.ignoreFile.test(result.request))) {
-          const newResult = this.overrideRequestPath(result);
-          return callback(null, newResult);
+        if (pathIsInside(result.context, this.mainDir)) {
+
+          let pathFromPivot = this.getRelativeFromRootDir(result);
+
+          if (this.overrides.includes(pathFromPivot)) {
+            result.request = path.resolve(this.overrideDir + '/..', pathFromPivot);
+          }
+
+          return callback(null, result);
         } else {
           return callback(null, result);
         }
@@ -30,33 +33,34 @@ module.exports =  class WebpackPathOverridePlugin {
     });
   }
 
-  overrideRequestPath(result) {
-    const newResult = {...result};
-    const pathRegExp = this.pathRegExp;
-    const pathReplacement = this.pathReplacement;
-
-    const {request, dependencies} = newResult;
+  getRelativeFromRootDir(result) {
     let subPath = '';
-    if (this.pathPivot) {
-      subPath = newResult.context.split(this.pathPivot)[1] + '/';
-    }
-    newResult.request = request.replace(pathRegExp, pathReplacement + subPath);
-
-    if (dependencies) {
-      dependencies.forEach((dependency) => {
-        const dependencyRequest = dependency.request;
-        if (dependencyRequest) {
-          dependency.request = dependencyRequest.replace(pathRegExp, pathReplacement);
-        }
-      })
-    }
-    if (fs.existsSync(newResult.request)) {
-      return newResult;
-    } else {
-      console.warn(`\n\nnot found ${newResult.request}\n`);
-      console.warn(`using:    ${result.request}\n`);
-      return result;
-    }
-
+    subPath = path.relative(this.mainDir + '/..', result.context);
+    return path.join(subPath, result.request);
   }
+
+  overrides = [];
+
+  walk = (directoryName) => {
+    fs.readdir(directoryName, (e, files) => {
+      if (e) {
+        console.log('Error: ', e);
+        return;
+      }
+      files.forEach((file) => {
+        var fullPath = path.join(directoryName, file);
+        fs.stat(fullPath, (e, f) => {
+          if (e) {
+            console.log('Error: ', e);
+            return;
+          }
+          if (f.isDirectory()) {
+            this.walk(fullPath);
+          } else {
+            this.overrides.push(path.relative(this.overrideDir + '/..',fullPath));
+          }
+        });
+      });
+    });
+  };
 };
