@@ -11,11 +11,10 @@ module.exports =  class WebpackPathOverridePlugin {
     this.walk(this.overrideDir);
   }
 
-  apply(resolver) {
-
-    resolver.plugin('normal-module-factory', (nmf) => {
-      nmf.plugin('before-resolve', (result, callback) => {
-        if (!result) return callback();
+  apply(compiler) {
+    compiler.hooks.normalModuleFactory.tap('FileOverridePlugin', (fop) => {
+      fop.hooks.beforeResolve.tap('FileOverridePlugin', (result) => {
+        if (!result) return;
 
         let requestFullPath = path.resolve(result.context, result.request);
 
@@ -26,9 +25,9 @@ module.exports =  class WebpackPathOverridePlugin {
             result.request = path.resolve(this.overrideDir + '/..', pathFromPivot);
           }
 
-          return callback(null, result);
+          return result;
         } else {
-          return callback(null, result);
+          return result;
         }
       });
     });
