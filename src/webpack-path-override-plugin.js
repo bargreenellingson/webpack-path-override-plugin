@@ -26,11 +26,9 @@ module.exports =  class WebpackPathOverridePlugin {
           if (this.overrides.includes(pathFromPivot)) {
             result.request = path.resolve(this.overrideDir + '/..', pathFromPivot);
           }
-
-          // return resolver.doResolve(target, request, null, resolveContext, callback);
           return result;
+
         } else {
-          // return resolver.doResolve(target, request, null, resolveContext, callback);
           return result;
         }
       });
