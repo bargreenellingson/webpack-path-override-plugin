@@ -1,23 +1,38 @@
-# webpack-path-override-plugin
+# webpack-file-override-plugin
 
-#### How to use it?
+A webpack plugin that overrides files imported from one directory with files in another. 
 
-Suppose you want override import/require path, such as: 
+## Example
+
+### Directory strucutre
+
+```
+/home/user/main_directory
+
+├── src
+│   ├── components
+│   │   ├── App
+│   │   │   └── app.js // File that will be replaced!
+│   ├── index.css
+│   └── index.js
 
 
-1. `import config from '../../config.market.json'`
-2. `const config = require('../../config.market.json')`
+/home/user/override_directory
 
-to:
+├── src
+│   ├── components
+│   │   ├── App
+│   │   │   └── app.js // File that will replace it!
 
-1. `import config from '../../config.other_market.json'`
-2. `const config = require('../../config.other_market.json')`
+```
 
 You can add plugin in to webpack config:
 
 ```
+const WebpackFileOverridePlugin = require('webpack-file-override-plugin');
+
  plugins: [
-    new WebpackPathOverridePlugin(/config\.market\.json$/, 'config\.other_market\.json'),
+    new WebpackFileOverridePlugin('/home/user/main_directory', '/home/user/override_directory),
  ],
 ```
 
@@ -25,6 +40,16 @@ The first param is the path(it can be a regex) that you want to be override.
 
 The second param is the path that be used to override the first param.
 
-#### TODO:
+## How does it work?
 
-- [] document pivot
+Webpack by default will load files from `main-directory`. The plugin does as follows:
+
+- Scans the override dir and generates an array of files to match (based on webpack's `extensions` array). 
+- As files get loaded by webpack, the plugin checks if it's path matches any of the files in the override dir
+- If it finds a match, it replaces the request with the path the the file in the override dir.
+
+## Common Patterns
+
+### I want to override a file but it imports a relative path
+
+Create an alias that resolves to the main directory. Import the file with that alias.
