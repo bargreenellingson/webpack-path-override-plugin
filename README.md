@@ -42,11 +42,11 @@ The second param is the path that is used to override the first param.
 
 ## How does it work?
 
-Webpack by default will load files from `main-directory`. The plugin does as follows:
+In the example Webpack by default loads files from `main_directory`. The plugin does as follows:
 
-- Scans the override dir and generates an array of files to match (based on webpack's `extensions` array). 
-- As files get loaded by webpack, the plugin checks if it's path matches any of the files in the override dir
-- If it finds a match, it replaces the request with the path the the file in the override dir.
+- Scans the override dir and generates an array of paths to files to match (based on webpack's `extensions` array). 
+- As files get loaded by webpack, the plugin checks if it's path matches any of the files in the override array
+- If it finds a match, it replaces the request with the path to the the file in the override dir.
 
 ## Common Patterns
 
