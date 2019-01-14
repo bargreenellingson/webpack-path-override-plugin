@@ -26,7 +26,7 @@ A webpack plugin that overrides files imported from one directory with files in 
 
 ```
 
-You can add plugin in to webpack config:
+Webpack config:
 
 ```
 const WebpackFileOverridePlugin = require('webpack-file-override-plugin');
@@ -36,9 +36,9 @@ const WebpackFileOverridePlugin = require('webpack-file-override-plugin');
  ],
 ```
 
-The first param is the path(it can be a regex) that you want to be override.
+The first param is the path that you want to override.
 
-The second param is the path that be used to override the first param.
+The second param is the path that is used to override the first param.
 
 ## How does it work?
 
