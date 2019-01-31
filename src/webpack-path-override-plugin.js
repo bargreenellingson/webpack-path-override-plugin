@@ -24,7 +24,7 @@ module.exports =  class WebpackPathOverridePlugin {
         if (pathIsInside(requestFullPath, this.mainDir)) {
           let pathFromPivot = this.getRelativeFromRootDir(result);
           if (this.overrides.includes(pathFromPivot)) {
-            result.request = path.resolve(this.overrideDir + '/..', pathFromPivot);
+            result.request = path.resolve(this.overrideDir, pathFromPivot);
           }
           return result;
 
@@ -62,7 +62,7 @@ module.exports =  class WebpackPathOverridePlugin {
           if (f.isDirectory()) {
             this.walk(fullPath);
           } else {
-            let relativePath = path.relative(this.overrideDir + '/..',fullPath)
+            let relativePath = path.relative(this.overrideDir, fullPath)
 
             // Add file without extension if it's extensions is included in options
             if (this.options.extensions.includes(path.extname(relativePath))) {
